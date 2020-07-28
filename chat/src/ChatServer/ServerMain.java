@@ -26,7 +26,32 @@ public class ServerMain {
            
            Socket clientSocket=serverSocket.accept();
            System.out.println("Accepted connection from: "+clientSocket);
-           handleClientSocket(clientSocket);   
+           
+          //Criando Threads para multiplas conexoes separadas; 
+           Thread t;
+           t = new Thread(){
+               
+               @Override
+               public void run(){
+                
+                   try{
+                     
+                         handleClientSocket(clientSocket);  
+                   }catch(IOException erro){
+                            erro.printStackTrace();
+                        }
+                   catch(InterruptedException erro){
+                        erro.printStackTrace();
+                         }
+               }
+           };
+           
+           t.start();//Inicia a Thread
+           
+   
+           
+           
+           
        }
        
        
@@ -34,11 +59,7 @@ public class ServerMain {
    }  catch(IOException erro){
        
        erro.printStackTrace();
-   }catch(InterruptedException erro){
-       
-       erro.printStackTrace();
-   }
-        
+   }   
     }
     
     //Metodo responsavel por criar varias conexoes
