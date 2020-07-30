@@ -26,13 +26,10 @@ public class ServerMain {
            
            Socket clientSocket=serverSocket.accept();
            System.out.println("Accepted connection from: "+clientSocket);
-           
            ServerWorker worker= new ServerWorker(clientSocket);
             worker.start();
            
-       }
-       
-       
+       } 
        
    }  catch(IOException erro){
        
