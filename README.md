@@ -1,2 +1,2 @@
 # chatJava
-Creanting Chat with Socket's
+Creating Chat with Socket's
