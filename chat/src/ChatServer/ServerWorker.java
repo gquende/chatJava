@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -22,6 +23,7 @@ import java.util.logging.Logger;
 public class ServerWorker extends Thread {
     
     private final Socket clientSocket;
+    private String login=null;
     
     public ServerWorker(Socket clientSocket){
         
@@ -44,22 +46,33 @@ public class ServerWorker extends Thread {
     
       private void handleClientSocket() throws IOException, InterruptedException         
     {
-        InputStream inputStream = clientSocket.getInputStream();
+        InputStream inputStream = clientSocket.getInputStream();//Serve para escrever dados ou mensagem do cliente
         OutputStream outputStream= clientSocket.getOutputStream();
         BufferedReader reader= new BufferedReader(new InputStreamReader(inputStream));//Para ler linha a linha
         
         String line;
         
         while((line=reader.readLine())!=null){
+            String [] tokens= StringUtils.split(line);
             
-            
-            if("quit".equalsIgnoreCase(line))
+          if(tokens !=null && tokens.length>0)
+          {
+              String cmd= tokens[0];
+                if("quit".equalsIgnoreCase(cmd))
             {
                 break;
                 
             }
-            String msg="You typed: "+line+"\n";
+                else if ("login".equalsIgnoreCase(cmd)){
+                    
+                    handleLogin(outputStream, tokens);
+                    
+                }
+          
+                /*String msg="You typed: "+line+"\n";
             outputStream.write(msg.getBytes());
+           */   
+          }
             
         }
   
@@ -73,5 +86,27 @@ public class ServerWorker extends Thread {
        */       
      clientSocket.close();   
         
+    }
+
+      //Funcao que faz o login
+    private void handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
+      if(tokens.length==3){
+          String log=tokens[1];
+          String password=tokens[2];
+           this.login=log;
+          
+          if("guest".equalsIgnoreCase(login) && "guest".equalsIgnoreCase(password) || "geraldo".equalsIgnoreCase(login) && "quende".equalsIgnoreCase(password))
+          {
+              String msg= "ok login\n";
+              outputStream.write(msg.getBytes()); 
+             
+              System.out.println("User Logged in succesfuly: "+login);
+          }else{
+                String msg= "error login\n";
+              outputStream.write(msg.getBytes()); 
+          }
+      }
+    
+    
     }
 }
