@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -24,11 +25,18 @@ public class ServerWorker extends Thread {
     
     private final Socket clientSocket;
     private String login=null;
+    private final Server server;
+    private OutputStream outputStream;
+     
+    ServerWorker(Server server, Socket clientSocket) {
+   this.clientSocket=clientSocket;
+   this.server=server;
     
-    public ServerWorker(Socket clientSocket){
+    }
+    
+    public String getLogin(){
         
-        this.clientSocket=clientSocket;
-       
+        return login;
     }
     
     @Override
@@ -47,16 +55,17 @@ public class ServerWorker extends Thread {
       private void handleClientSocket() throws IOException, InterruptedException         
     {
         InputStream inputStream = clientSocket.getInputStream();//Serve para escrever dados ou mensagem do cliente
-        OutputStream outputStream= clientSocket.getOutputStream();
+      this.outputStream= clientSocket.getOutputStream();
         BufferedReader reader= new BufferedReader(new InputStreamReader(inputStream));//Para ler linha a linha
         
         String line;
         
-        while((line=reader.readLine())!=null){
-            String [] tokens= StringUtils.split(line);
+        while((line=reader.readLine())!=null){//Faz a leitura dos comandos inseridos na linha de comando
+            String [] tokens= StringUtils.split(line); //Separa as palavras
             
           if(tokens !=null && tokens.length>0)
           {
+           
               String cmd= tokens[0];
                 if("quit".equalsIgnoreCase(cmd))
             {
@@ -76,14 +85,7 @@ public class ServerWorker extends Thread {
             
         }
   
-        
-        /*for(int i=0; i<10; i++)
-   {
-   
-         outputStream.write(("Hello GQ29 "+new Date()+"\n").getBytes());
-         Thread.sleep(1000);
-   }
-       */       
+             
      clientSocket.close();   
         
     }
@@ -101,12 +103,44 @@ public class ServerWorker extends Thread {
               outputStream.write(msg.getBytes()); 
              
               System.out.println("User Logged in succesfuly: "+login);
+             
+              String onlineMsg= "Online "+login+"\n";
+              
+              List<ServerWorker> workerList=server.getWorkerList();//Pega a lista das pessoas conectadas ao sevidor
+              
+              //Para enviar o usuario actual para outros utilizadores online
+             for(ServerWorker worker : workerList){
+                  if(worker.getLogin()!=null) //Para precaver o envio de online a si mesmo
+               {
+                //para evitar utilizadores ligado sem seacao iniciada possam receber o estado de online
+                   if(!login.equals(worker.getLogin()))
+                   {
+                        String onlineMsg2= "Online "+worker.getLogin()+"\n";
+                 worker.send(onlineMsg2);
+                   }
+               }
+                  
+              } 
+              
+              
+              //Para outros usuarios online neste actual
+              for(ServerWorker worker : workerList){
+                 if(!login.equals(worker.getLogin())) 
+                  worker.send(onlineMsg);
+                  
+              }
+              
+              
           }else{
                 String msg= "error login\n";
               outputStream.write(msg.getBytes()); 
           }
       }
-    
-    
+    }
+
+    private void send(String onlineMsg) throws IOException {
+       
+  if(login!=null)
+      outputStream.write(onlineMsg.getBytes());
     }
 }
