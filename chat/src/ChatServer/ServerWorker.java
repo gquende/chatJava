@@ -29,9 +29,8 @@ public class ServerWorker extends Thread {
     private OutputStream outputStream;
      
     ServerWorker(Server server, Socket clientSocket) {
-   this.clientSocket=clientSocket;
-   this.server=server;
-    
+        this.clientSocket=clientSocket;
+        this.server=server;
     }
     
     public String getLogin(){
@@ -55,7 +54,7 @@ public class ServerWorker extends Thread {
       private void handleClientSocket() throws IOException, InterruptedException         
     {
         InputStream inputStream = clientSocket.getInputStream();//Serve para escrever dados ou mensagem do cliente
-      this.outputStream= clientSocket.getOutputStream();
+        this.outputStream= clientSocket.getOutputStream();
         BufferedReader reader= new BufferedReader(new InputStreamReader(inputStream));//Para ler linha a linha
         
         String line;
@@ -99,7 +98,7 @@ public class ServerWorker extends Thread {
           
           if("guest".equalsIgnoreCase(login) && "guest".equalsIgnoreCase(password) || "geraldo".equalsIgnoreCase(login) && "quende".equalsIgnoreCase(password))
           {
-              String msg= "ok login\n";
+              String msg= "oks login\n";
               outputStream.write(msg.getBytes()); 
              
               System.out.println("User Logged in succesfuly: "+login);
