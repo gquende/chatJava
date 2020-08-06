@@ -56,6 +56,13 @@ public class Server extends Thread {
        erro.printStackTrace();
    }   
     }
+
+    public void removeWorker(ServerWorker serverWorker) {
+       
+workerList.remove(serverWorker);
+
+// throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
         
     }
     

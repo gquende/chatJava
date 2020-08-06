@@ -68,6 +68,7 @@ public class ServerWorker extends Thread {
               String cmd= tokens[0];
                 if("quit".equalsIgnoreCase(cmd))
             {
+                handleLogoff();
                 break;
                 
             }
@@ -98,12 +99,11 @@ public class ServerWorker extends Thread {
           
           if("guest".equalsIgnoreCase(login) && "guest".equalsIgnoreCase(password) || "geraldo".equalsIgnoreCase(login) && "quende".equalsIgnoreCase(password))
           {
-              String msg= "oks login\n";
+              String msg= "ok login\n";
               outputStream.write(msg.getBytes()); 
              
               System.out.println("User Logged in succesfuly: "+login);
-             
-              String onlineMsg= "Online "+login+"\n";
+            
               
               List<ServerWorker> workerList=server.getWorkerList();//Pega a lista das pessoas conectadas ao sevidor
               
@@ -123,6 +123,8 @@ public class ServerWorker extends Thread {
               
               
               //Para outros usuarios online neste actual
+              
+              String onlineMsg= "Online "+login+"\n";
               for(ServerWorker worker : workerList){
                  if(!login.equals(worker.getLogin())) 
                   worker.send(onlineMsg);
@@ -142,4 +144,19 @@ public class ServerWorker extends Thread {
   if(login!=null)
       outputStream.write(onlineMsg.getBytes());
     }
+
+    private void handleLogoff() throws IOException {
+ 
+        server.removeWorker(this);
+             List<ServerWorker> workerList=server.getWorkerList();//Pega a lista das pessoas conectadas ao sevidor
+              
+              String onlineMsg= "Offline "+login+"\n";
+              for(ServerWorker worker : workerList){
+                 if(!login.equals(worker.getLogin())) 
+                  worker.send(onlineMsg);
+clientSocket.close();
+//  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+}
+
 }
