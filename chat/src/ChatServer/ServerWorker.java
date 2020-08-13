@@ -34,7 +34,6 @@ public class ServerWorker extends Thread {
     }
     
     public String getLogin(){
-        
         return login;
     }
     
@@ -52,7 +51,7 @@ public class ServerWorker extends Thread {
     
     
       private void handleClientSocket() throws IOException, InterruptedException         
-    {
+        {
         InputStream inputStream = clientSocket.getInputStream();//Serve para escrever dados ou mensagem do cliente
         this.outputStream= clientSocket.getOutputStream();
         BufferedReader reader= new BufferedReader(new InputStreamReader(inputStream));//Para ler linha a linha
@@ -61,36 +60,53 @@ public class ServerWorker extends Thread {
         
         while((line=reader.readLine())!=null){//Faz a leitura dos comandos inseridos na linha de comando
             String [] tokens= StringUtils.split(line); //Separa as palavras
-            
           if(tokens !=null && tokens.length>0)
           {
-           
               String cmd= tokens[0];
                 if("quit".equalsIgnoreCase(cmd))
-            {
-                handleLogoff();
-                break;
-                
-            }
+                    {
+                        handleLogoff();
+                        break;
+                    }
                 else if ("login".equalsIgnoreCase(cmd)){
-                    
                     handleLogin(outputStream, tokens);
-                    
                 }
-          
+                else if("msg".equals(cmd)){
+                    String[] tokensMsg= StringUtils.split(line,null, 3);//Retira a partir o texto a partir da terceira posicao
+                    handleMessage(tokensMsg);
+
+
+                }
+
                 /*String msg="You typed: "+line+"\n";
             outputStream.write(msg.getBytes());
            */   
           }
             
         }
-  
-             
-     clientSocket.close();   
-        
+     clientSocket.close();
     }
 
-      //Funcao que faz o login
+    private void handleMessage(String[] tokens) throws IOException {
+
+        String sendTo= tokens [1];
+        String body= tokens [2];
+        System.out.println(body);
+
+        List<ServerWorker> workerList=server.getWorkerList();//Pega a lista das pessoas conectadas ao sevidor
+
+        for(ServerWorker worker : workerList){
+            if(sendTo.equalsIgnoreCase(worker.getLogin()))
+            {
+                String outMsg= login+": "+body;
+              worker.send(outMsg);
+
+            }
+
+
+    }}
+
+    //Funcao que faz o login
     private void handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
       if(tokens.length==3){
           String log=tokens[1];
@@ -100,11 +116,8 @@ public class ServerWorker extends Thread {
           if("guest".equalsIgnoreCase(login) && "guest".equalsIgnoreCase(password) || "geraldo".equalsIgnoreCase(login) && "quende".equalsIgnoreCase(password))
           {
               String msg= "ok login\n";
-              outputStream.write(msg.getBytes()); 
-             
+              outputStream.write(msg.getBytes());
               System.out.println("User Logged in succesfuly: "+login);
-            
-              
               List<ServerWorker> workerList=server.getWorkerList();//Pega a lista das pessoas conectadas ao sevidor
               
               //Para enviar o usuario actual para outros utilizadores online
@@ -115,7 +128,7 @@ public class ServerWorker extends Thread {
                    if(!login.equals(worker.getLogin()))
                    {
                         String onlineMsg2= "Online "+worker.getLogin()+"\n";
-                 worker.send(onlineMsg2);
+                        worker.send(onlineMsg2);
                    }
                }
                   
@@ -158,5 +171,7 @@ clientSocket.close();
 //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
+
+
 
 }

@@ -16,51 +16,35 @@ import java.util.List;
  * @author za
  */
 public class Server extends Thread {
-
     private final int serverPort;
-    
     private ArrayList<ServerWorker> workerList=new ArrayList<>();
     
     Server(int serverPort) {
-   
      this.serverPort=serverPort;   
     }
-    
-    
+
     public List<ServerWorker> getWorkerList(){
-    
     return workerList;
-    
     }
-        
-    
+
     @Override
     public void run(){
-        
-          try{
-       
-       ServerSocket serverSocket = new ServerSocket(serverPort);   
-       
-       while(true){
-           
-           Socket clientSocket=serverSocket.accept();
-           System.out.println("Accepted connection from: "+clientSocket);
-           ServerWorker worker= new ServerWorker(this, clientSocket);
-           workerList.add(worker);//Adiciona novo userLigado
+        try{
+            ServerSocket serverSocket = new ServerSocket(serverPort);
+            while(true){
+            Socket clientSocket=serverSocket.accept();
+            System.out.println("Accepted connection from: "+clientSocket);
+            ServerWorker worker= new ServerWorker(this, clientSocket);
+            workerList.add(worker);//Adiciona novo userLigado
             worker.start();
-           
-       } 
-       
+       }
    }  catch(IOException erro){
-       
        erro.printStackTrace();
    }   
     }
 
     public void removeWorker(ServerWorker serverWorker) {
-       
-workerList.remove(serverWorker);
-
+        workerList.remove(serverWorker);
 // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
         
